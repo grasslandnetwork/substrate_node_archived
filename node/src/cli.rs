@@ -1,20 +1,19 @@
 use sc_cli::RunCmd;
+use structopt::StructOpt;
 
-#[derive(Debug, clap::Parser)]
+#[derive(Debug, StructOpt)]
 pub struct Cli {
-	#[clap(subcommand)]
+	#[structopt(subcommand)]
 	pub subcommand: Option<Subcommand>,
 
-	#[clap(flatten)]
+	#[structopt(flatten)]
 	pub run: RunCmd,
 }
 
-#[derive(Debug, clap::Subcommand)]
+#[derive(Debug, StructOpt)]
 pub enum Subcommand {
 	/// Key management cli utilities
-	#[clap(subcommand)]
 	Key(sc_cli::KeySubcommand),
-
 	/// Build a chain specification.
 	BuildSpec(sc_cli::BuildSpecCmd),
 
@@ -37,6 +36,6 @@ pub enum Subcommand {
 	Revert(sc_cli::RevertCmd),
 
 	/// The custom benchmark subcommand benchmarking runtime pallets.
-	#[clap(name = "benchmark", about = "Benchmark runtime pallets.")]
+	#[structopt(name = "benchmark", about = "Benchmark runtime pallets.")]
 	Benchmark(frame_benchmarking_cli::BenchmarkCmd),
 }
