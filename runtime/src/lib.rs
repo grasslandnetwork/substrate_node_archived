@@ -41,7 +41,7 @@ pub use sp_runtime::BuildStorage;
 pub use sp_runtime::{Perbill, Permill};
 
 /// Import the template pallet.
-pub use pallet_activationsdigest;
+pub use pallet_wavefunction;
 
 /// An index to a block.
 pub type BlockNumber = u32;
@@ -90,8 +90,8 @@ pub mod opaque {
 //   https://docs.substrate.io/v3/runtime/upgrades#runtime-versioning
 #[sp_version::runtime_version]
 pub const VERSION: RuntimeVersion = RuntimeVersion {
-	spec_name: create_runtime_str!("node-activationsdigest"),
-	impl_name: create_runtime_str!("node-activationsdigest"),
+	spec_name: create_runtime_str!("node-wavefunction"),
+	impl_name: create_runtime_str!("node-wavefunction"),
 	authoring_version: 1,
 	// The version of the runtime specification. A full node will not attempt to use its native
 	//   runtime in substitute for the on-chain Wasm runtime unless all of `spec_name`,
@@ -274,8 +274,8 @@ impl pallet_sudo::Config for Runtime {
 	type Call = Call;
 }
 
-/// Configure the pallet-activationsdigest in pallets/activationsdigest.
-impl pallet_activationsdigest::Config for Runtime {
+/// Configure the pallet-wavefunction in pallets/wavefunction.
+impl pallet_wavefunction::Config for Runtime {
 	type Event = Event;
 }
 
@@ -295,7 +295,7 @@ construct_runtime!(
 		TransactionPayment: pallet_transaction_payment,
 		Sudo: pallet_sudo,
 		// Include the custom logic from the pallet-template in the runtime.
-		Activationsdigest: pallet_activationsdigest,
+		Wavefunction: pallet_wavefunction,
 	}
 );
 
@@ -512,7 +512,7 @@ impl_runtime_apis! {
 			add_benchmark!(params, batches, frame_system, SystemBench::<Runtime>);
 			add_benchmark!(params, batches, pallet_balances, Balances);
 			add_benchmark!(params, batches, pallet_timestamp, Timestamp);
-			add_benchmark!(params, batches, pallet_activationsdigest, TemplateModule);
+			add_benchmark!(params, batches, pallet_wavefunction, TemplateModule);
 
 			Ok(batches)
 		}

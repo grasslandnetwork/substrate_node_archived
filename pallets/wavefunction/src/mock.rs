@@ -1,4 +1,4 @@
-use crate as pallet_activationsdigest;
+use crate as pallet_wavefunction;
 use frame_system as system;
 use sp_core::H256;
 use sp_runtime::{
@@ -17,7 +17,7 @@ frame_support::construct_runtime!(
 		UncheckedExtrinsic = UncheckedExtrinsic,
 	{
 		System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
-		TemplateModule: pallet_activationsdigest::{Pallet, Call, Storage, Event<T>},
+		TemplateModule: pallet_wavefunction::{Pallet, Call, Storage, Event<T>},
 	}
 );
 
@@ -48,7 +48,7 @@ impl system::Config for Test {
 	type MaxConsumers = frame_support::traits::ConstU32<16>;
 }
 
-impl pallet_activationsdigest::Config for Test {
+impl pallet_wavefunction::Config for Test {
 	type Event = Event;
 }
 

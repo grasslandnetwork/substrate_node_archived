@@ -1,7 +1,7 @@
 [workspace]
 members = [
     'node',
-    'pallets/activationsdigest',
+    'pallets/wavefunction',
     'runtime',
 ]
 [profile.release]

@@ -30,17 +30,18 @@ pub mod pallet {
 
 	#[derive(Clone, Encode, Decode, PartialEq, RuntimeDebug, TypeInfo)]
 	#[scale_info(skip_type_params(T))]
-    pub struct ActivationsDigest<T: Config> {
-        pub digest: Vec<u8>,
+    pub struct WaveFunction<T: Config> {
+        pub observation: Vec<u8>,
+        pub prediction: Vec<u8>,
         pub author: <T as frame_system::Config>::AccountId,
     }
 
 
 
-    /// Storage Map for ActivationsDigests 
+    /// Storage Map for WaveFunctions 
 	#[pallet::storage]
-	#[pallet::getter(fn activations_digests)]
-    pub(super) type ActivationsDigests<T: Config> = StorageMap<_, Twox64Concat, T::Hash, ActivationsDigest<T>>;
+	#[pallet::getter(fn wave_functions)]
+    pub(super) type WaveFunctions<T: Config> = StorageMap<_, Twox64Concat, T::Hash, WaveFunction<T>>;
     
 
 	// Pallets use events to inform users when important changes are made.
@@ -48,7 +49,7 @@ pub mod pallet {
 	#[pallet::event]
 	#[pallet::generate_deposit(pub(super) fn deposit_event)]
 	pub enum Event<T: Config> {
-		ActivationsDigestAdded(Vec<u8>, T::AccountId, T::Hash),
+		WaveFunctionAdded(Vec<u8>, T::AccountId, T::Hash),
 	}
 
 	// Errors inform users that something went wrong.
@@ -68,9 +69,10 @@ pub mod pallet {
 	impl<T: Config> Pallet<T> {
 
         #[pallet::weight(10000)]
-		pub fn add_activations_digest(
+		pub fn add_wavefunction(
             origin: OriginFor<T>,
-            digest: Vec<u8>
+            observation: Vec<u8>,
+            prediction: Vec<u8>,
         ) -> DispatchResult {
 			// Check that the extrinsic was signed and get the signer.
 			// This function will return an error if the extrinsic is not signed.
@@ -78,15 +80,19 @@ pub mod pallet {
 			let author = ensure_signed(origin)?;
 
 
-            let activations_digest = ActivationsDigest { digest: digest.clone(), author: author.clone() };
+            let wave_function = WaveFunction {
+                observation: observation.clone(),
+                prediction: prediction.clone(),
+                author: author.clone()
+            };
 
-            let activations_digest_id = T::Hashing::hash_of(&activations_digest);
+            let wave_function_id = T::Hashing::hash_of(&wave_function);
 
 			// Update storage.
-			<ActivationsDigests<T>>::insert(activations_digest_id, activations_digest);
+			<WaveFunctions<T>>::insert(wave_function_id, wave_function);
 
 			// Emit an event.
-			Self::deposit_event(Event::ActivationsDigestAdded(digest, author, activations_digest_id));
+			Self::deposit_event(Event::WaveFunctionAdded(observation, author, wave_function_id));
 			// Return a successful DispatchResultWithPostInfo
 			Ok(())
 		}

@@ -1,4 +1,4 @@
-//! Benchmarking setup for pallet-activationsdigest
+//! Benchmarking setup for pallet-wavefunction
 
 use super::*;
 
