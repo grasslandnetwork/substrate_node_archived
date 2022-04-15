@@ -12,6 +12,7 @@ pub mod pallet {
 		pallet_prelude::*,
 		sp_runtime::traits::Hash,
 		traits::{tokens::ExistenceRequirement},
+        weights::{Pays},
 	};
 	use frame_system::pallet_prelude::*;
 
@@ -67,8 +68,7 @@ pub mod pallet {
 	// Dispatchable functions must be annotated with a weight and must return a DispatchResult.
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
-
-        #[pallet::weight(10000)]
+        #[pallet::weight((10_000, Pays::No))]
 		pub fn add_wavefunction(
             origin: OriginFor<T>,
             observation: Vec<u8>,
