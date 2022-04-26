@@ -13,6 +13,7 @@ pub mod pallet {
 		sp_runtime::traits::Hash,
 		traits::{tokens::ExistenceRequirement},
         weights::{Pays},
+        transactional,
 	};
 	use frame_system::pallet_prelude::*;
 
@@ -22,6 +23,10 @@ pub mod pallet {
 		/// Because this pallet emits events, it depends on the runtime's definition of an event.
 		type Event: From<Event<Self>> + IsType<<Self as frame_system::Config>::Event>;
 
+        /// The maximum size of the WaveFunction's function that can be
+        /// stored on the blockchain
+		#[pallet::constant]
+		type WaveFunctionFunctionMaxBytes: Get<u32>;
 
 	}
 
@@ -32,8 +37,7 @@ pub mod pallet {
 	#[derive(Clone, Encode, Decode, PartialEq, RuntimeDebug, TypeInfo)]
 	#[scale_info(skip_type_params(T))]
     pub struct WaveFunction<T: Config> {
-        pub observation: Vec<u8>,
-        pub prediction: Vec<u8>,
+        pub function: Vec<u8>,
         pub author: <T as frame_system::Config>::AccountId,
     }
 
@@ -60,6 +64,9 @@ pub mod pallet {
 		NoneValue,
 		/// Errors should have helpful documentation associated with them.
 		StorageOverflow,
+		/// The number of bytes in a WaveFunction's function can't be
+		/// more than WaveFunctionFunctionMaxBytes
+		WaveFunctionFunctionTooManyBytes,
 
 	}
 
@@ -69,20 +76,24 @@ pub mod pallet {
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
         #[pallet::weight((10_000, Pays::No))]
+        #[transactional]
 		pub fn add_wavefunction(
             origin: OriginFor<T>,
-            observation: Vec<u8>,
-            prediction: Vec<u8>,
+            function: Vec<u8>,
         ) -> DispatchResult {
 			// Check that the extrinsic was signed and get the signer.
 			// This function will return an error if the extrinsic is not signed.
 			// https://docs.substrate.io/v3/runtime/origins
 			let author = ensure_signed(origin)?;
 
+			// ensure WaveFunction's function size does not exceed WaveFunctionFunctionMaxBytes
+			ensure!(
+			    (function.len() as u32) <= T::WaveFunctionFunctionMaxBytes::get(),
+			    <Error<T>>::WaveFunctionFunctionTooManyBytes
+			);
 
             let wave_function = WaveFunction {
-                observation: observation.clone(),
-                prediction: prediction.clone(),
+                function: function.clone(),
                 author: author.clone()
             };
 
@@ -92,13 +103,11 @@ pub mod pallet {
 			<WaveFunctions<T>>::insert(wave_function_id, wave_function);
 
 			// Emit an event.
-			Self::deposit_event(Event::WaveFunctionAdded(observation, author, wave_function_id));
+			Self::deposit_event(Event::WaveFunctionAdded(function, author, wave_function_id));
 			// Return a successful DispatchResultWithPostInfo
 			Ok(())
 		}
 
-
-        
 
 	}
 
