@@ -1,10 +1,10 @@
-on: [push]
-
 name: Build
 
+on: [push]
+
 jobs:
-  check:
-    name: Rust project
+  build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -24,7 +24,7 @@ jobs:
           command: check
           args: --release
 
-      - name: Build
+      - name: Run
         uses: actions-rs/cargo@v1
         with:
           command: build
