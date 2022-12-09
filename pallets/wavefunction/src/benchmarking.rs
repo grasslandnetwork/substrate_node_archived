@@ -1,4 +1,4 @@
-//! Benchmarking setup for pallet-wavefunction
+//! Benchmarking setup for pallet-template
 
 use super::*;
 

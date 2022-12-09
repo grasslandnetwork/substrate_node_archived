@@ -1,4 +1,5 @@
-use crate as pallet_wavefunction;
+use crate as pallet_template;
+use frame_support::traits::{ConstU16, ConstU64};
 use frame_system as system;
 use sp_core::H256;
 use sp_runtime::{
@@ -16,8 +17,8 @@ frame_support::construct_runtime!(
 		NodeBlock = Block,
 		UncheckedExtrinsic = UncheckedExtrinsic,
 	{
-		System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
-		TemplateModule: pallet_wavefunction::{Pallet, Call, Storage, Event<T>},
+		System: frame_system,
+		TemplateModule: pallet_template,
 	}
 );
 
@@ -26,8 +27,8 @@ impl system::Config for Test {
 	type BlockWeights = ();
 	type BlockLength = ();
 	type DbWeight = ();
-	type Origin = Origin;
-	type Call = Call;
+	type RuntimeOrigin = RuntimeOrigin;
+	type RuntimeCall = RuntimeCall;
 	type Index = u64;
 	type BlockNumber = u64;
 	type Hash = H256;
@@ -48,7 +49,7 @@ impl system::Config for Test {
 	type MaxConsumers = frame_support::traits::ConstU32<16>;
 }
 
-impl pallet_wavefunction::Config for Test {
+impl pallet_template::Config for Test {
 	type RuntimeEvent = RuntimeEvent;
 }
 

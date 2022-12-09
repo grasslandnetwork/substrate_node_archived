@@ -2,20 +2,31 @@
 
 /// Edit this file to define custom logic or remove it if it is not needed.
 /// Learn more about FRAME and the core library of Substrate FRAME pallets:
-/// <https://docs.substrate.io/v3/runtime/frame>
+/// <https://docs.substrate.io/reference/frame-pallets/>
 pub use pallet::*;
+
+#[cfg(test)]
+mod mock;
+
+#[cfg(test)]
+mod tests;
+
+#[cfg(feature = "runtime-benchmarks")]
+mod benchmarking;
 
 #[frame_support::pallet]
 pub mod pallet {
 	use frame_support::{
-		inherent::Vec,
-		pallet_prelude::*,
-		sp_runtime::traits::Hash,
-		traits::{tokens::ExistenceRequirement},
-        weights::{Pays},
+        pallet_prelude::*,
         transactional,
-	};
+        sp_runtime::traits::Hash,
+    };
 	use frame_system::pallet_prelude::*;
+
+	#[pallet::pallet]
+    #[pallet::without_storage_info]
+	#[pallet::generate_store(pub(super) trait Store)]
+	pub struct Pallet<T>(_);
 
 	/// Configure the pallet by specifying the parameters and types on which it depends.
 	#[pallet::config]
@@ -30,31 +41,32 @@ pub mod pallet {
 
 	}
 
-	#[pallet::pallet]
-	#[pallet::generate_store(pub(super) trait Store)]
-	pub struct Pallet<T>(_);
 
-	#[derive(Clone, Encode, Decode, PartialEq, RuntimeDebug, TypeInfo)]
+    #[derive(Clone, Encode, Decode, PartialEq, RuntimeDebug, TypeInfo)]
 	#[scale_info(skip_type_params(T))]
     pub struct WaveFunction<T: Config> {
-        pub function: Vec<u8>,
+        pub thefunction: BoundedVec<[u8; 16], T::WaveFunctionFunctionMaxBytes>,
         pub author: <T as frame_system::Config>::AccountId,
     }
 
-
-
-    /// Storage Map for WaveFunctions 
-	#[pallet::storage]
-	#[pallet::getter(fn wave_functions)]
-    pub(super) type WaveFunctions<T: Config> = StorageMap<_, Twox64Concat, T::Hash, WaveFunction<T>>;
     
+	// The pallet's runtime storage items.
+	// https://docs.substrate.io/main-docs/build/runtime-storage/
+	#[pallet::storage]
+	#[pallet::getter(fn something)]
+	// Learn more about declaring storage items:
+	// https://docs.substrate.io/main-docs/build/runtime-storage/#declaring-storage-items
+	//-- pub type Something<T> = StorageValue<_, u32>;
+    pub type WaveFunctions<T: Config> = StorageMap<_, Twox64Concat, T::Hash, WaveFunction<T>>;
 
 	// Pallets use events to inform users when important changes are made.
-	// https://docs.substrate.io/v3/runtime/events-and-errors
+	// https://docs.substrate.io/main-docs/build/events-errors/
 	#[pallet::event]
 	#[pallet::generate_deposit(pub(super) fn deposit_event)]
 	pub enum Event<T: Config> {
-		WaveFunctionAdded(Vec<u8>, T::AccountId, T::Hash),
+		/// Event documentation should end with an array that provides descriptive names for event
+		/// parameters. [function, author, wave_function_id]
+		WaveFunctionAdded { thefunction:BoundedVec<[u8; 16], T::WaveFunctionFunctionMaxBytes>, author:T::AccountId, wave_function_id:T::Hash },
 	}
 
 	// Errors inform users that something went wrong.
@@ -64,10 +76,9 @@ pub mod pallet {
 		NoneValue,
 		/// Errors should have helpful documentation associated with them.
 		StorageOverflow,
-		/// The number of bytes in a WaveFunction's function can't be
+        /// The number of bytes in a WaveFunction's function can't be
 		/// more than WaveFunctionFunctionMaxBytes
 		WaveFunctionFunctionTooManyBytes,
-
 	}
 
 	// Dispatchable functions allows users to interact with the pallet and invoke state changes.
@@ -75,11 +86,50 @@ pub mod pallet {
 	// Dispatchable functions must be annotated with a weight and must return a DispatchResult.
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
-        #[pallet::weight((10_000, Pays::No))]
+		// /// An example dispatchable that takes a singles value as a parameter, writes the value to
+		// /// storage and emits an event. This function must be dispatched by a signed extrinsic.
+		// #[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		// pub fn do_something(origin: OriginFor<T>, something: u32) -> DispatchResult {
+		// 	// Check that the extrinsic was signed and get the signer.
+		// 	// This function will return an error if the extrinsic is not signed.
+		// 	// https://docs.substrate.io/main-docs/build/origins/
+		// 	let who = ensure_signed(origin)?;
+
+		// 	// Update storage.
+		// 	<Something<T>>::put(something);
+
+		// 	// Emit an event.
+		// 	Self::deposit_event(Event::WaveFunctionAdded { thefunction, author, wave_function_id });
+		// 	// Return a successful DispatchResultWithPostInfo
+		// 	Ok(())
+		// }
+
+		// /// An example dispatchable that may throw a custom error.
+		// #[pallet::weight(10_000 + T::DbWeight::get().reads_writes(1,1).ref_time())]
+		// pub fn cause_error(origin: OriginFor<T>) -> DispatchResult {
+		// 	let _who = ensure_signed(origin)?;
+
+		// 	// Read a value from storage.
+		// 	match <Something<T>>::get() {
+		// 		// Return an error if the value has not been set.
+		// 		None => return Err(Error::<T>::NoneValue.into()),
+		// 		Some(old) => {
+		// 			// Increment the value read from storage; will error in the event of overflow.
+		// 			let new = old.checked_add(1).ok_or(Error::<T>::StorageOverflow)?;
+		// 			// Update the value in storage with the incremented result.
+		// 			<Something<T>>::put(new);
+		// 			Ok(())
+		// 		},
+		// 	}
+		// }
+
+
+        #[pallet::weight(10_000 + T::DbWeight::get().reads_writes(1,1).ref_time())]
+        //#[pallet::dispatch(DispatchClass::Operational, Pays::No)]
         #[transactional]
 		pub fn add_wavefunction(
             origin: OriginFor<T>,
-            function: Vec<u8>,
+            thefunction: BoundedVec<[u8; 16], T::WaveFunctionFunctionMaxBytes>,
         ) -> DispatchResult {
 			// Check that the extrinsic was signed and get the signer.
 			// This function will return an error if the extrinsic is not signed.
@@ -88,12 +138,12 @@ pub mod pallet {
 
 			// ensure WaveFunction's function size does not exceed WaveFunctionFunctionMaxBytes
 			ensure!(
-			    (function.len() as u32) <= T::WaveFunctionFunctionMaxBytes::get(),
+			    (thefunction.len() as u32) <= T::WaveFunctionFunctionMaxBytes::get(),
 			    <Error<T>>::WaveFunctionFunctionTooManyBytes
 			);
 
             let wave_function = WaveFunction {
-                function: function.clone(),
+                thefunction: thefunction.clone(),
                 author: author.clone()
             };
 
@@ -103,13 +153,9 @@ pub mod pallet {
 			<WaveFunctions<T>>::insert(wave_function_id, wave_function);
 
 			// Emit an event.
-			Self::deposit_event(Event::WaveFunctionAdded(function, author, wave_function_id));
+			Self::deposit_event(Event::WaveFunctionAdded { thefunction, author, wave_function_id });
 			// Return a successful DispatchResultWithPostInfo
 			Ok(())
 		}
-
-
 	}
-
-	impl<T: Config> Pallet<T> {}
 }

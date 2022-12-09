@@ -1,8 +1,8 @@
 [workspace]
 members = [
-    'node',
-    'pallets/wavefunction',
-    'runtime',
+    "node",
+    "pallets/wavefunction",
+    "runtime",
 ]
 [profile.release]
 panic = "unwind"
