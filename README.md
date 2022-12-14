@@ -1,4 +1,7 @@
 # Substrate port of Grassland Full Node
+## This is an archived version that's no longer used. Instead, use [https://github.com/grasslandnetwork/substrate_node](https://github.com/grasslandnetwork/substrate_node)
+
+
 ### This is an alpha version for testing. It's not ready for use yet.
 
 ## Build
