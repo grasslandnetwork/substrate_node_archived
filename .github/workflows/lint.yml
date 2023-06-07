@@ -1,0 +1,24 @@
+name: Lint
+
+on: [push]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Setup
+        uses: actions-rs/toolchain@v1
+        with:
+            override: true
+            components: clippy
+            target: wasm32-unknown-unknown
+            toolchain: nightly
+
+      - name: Run
+        uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all-features
